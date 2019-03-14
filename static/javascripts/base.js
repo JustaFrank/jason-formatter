@@ -2,25 +2,20 @@ function ready(func) {
   document.addEventListener('DOMContentLoaded', func)
 }
 
-function result(value, err = false) {
-  return {
-    value: value,
-    err: err,
-    isLeft: () => !!value,
-    isRight: () => !!err
-  }
-}
-
 async function mapAttr(element, attr, mapFunc) {
   const [getAttr, setAttr] = await Promise.all([
     attrGetter(attr),
     attrSetter(attr)
   ])
   const attrValue = await getAttr(element).then(value => {
-    return value === undefined ? result('Undefined attribute.', true) : value
+    if (value === undefined) {
+      throw Error('Undefined attribute.')
+    }
+    return value
   })
-  await setAttr(element, await mapFunc(attrValue))
-  return result('Successfully mapped attribute.', false)
+  await setAttr(element, await mapFunc(attrValue)).catch(err => {
+    console.log(err)
+  })
 }
 
 async function attrGetter(attr) {
@@ -39,4 +34,30 @@ function charCount(string, char) {
   return string.split(char).length - 1
 }
 
-export { ready, mapAttr, charCount }
+function timer() {
+  const startTime = new Date().getTime()
+  const logTime = time => console.log(`Elapsed time: ${time}`)
+  return function(func = logTime) {
+    const elapsedTime = new Date().getTime() - startTime
+    func(elapsedTime)
+    return elapsedTime
+  }
+}
+
+function copyDivToClipboard(element) {
+  var range = document.createRange()
+  range.selectNode(element)
+  window.getSelection().removeAllRanges()
+  window.getSelection().addRange(range)
+  document.execCommand('copy')
+}
+
+function htmlTag(tagName, classes) {
+  return function(secondaryClasses) {
+    return function(value) {
+      return `<${tagName} class="${classes} ${secondaryClasses}">${value}</${tagName}>`
+    }
+  }
+}
+
+export { ready, mapAttr, charCount, timer, copyDivToClipboard, htmlTag }

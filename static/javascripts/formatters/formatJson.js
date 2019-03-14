@@ -1,58 +1,105 @@
-async function formatJson(jsonString) {
-  return stringifyJson(JSON.parse(jsonString), 2)
+import { timer } from '../base.js'
+
+function formatJson(highlightTag) {
+  return jsonString => {
+    const printElapsedTime = timer()
+    return new Promise((resolve, reject) => {
+      resolve(jsonString)
+    })
+      .then(JSON.parse)
+      .then(jsonStringifier(highlightTag, 2))
+      .then(formattedJson => {
+        printElapsedTime()
+        return formattedJson
+      })
+  }
 }
 
-function stringifyJson(json, spaces = 2, indent = 0, firstIndent = undefined) {
-  if (firstIndent === undefined) {
-    firstIndent = indent
-  }
-  const firstSpaces = Array(firstIndent + 1).join(' ')
-  const minSpaces = Array(indent + 1).join(' ')
-  const maxSpaces = Array(spaces + indent + 1).join(' ')
-
-  if (Array.isArray(json)) {
-    let string = firstSpaces + '['
-    if (json.length !== 0) {
-      string += '\n'
-      for (const item of json) {
-        if (typeof item === 'object') {
-          string += stringifyJson(item, spaces, indent + spaces) + ',\n'
-        } else {
-          const quotes = str => `"${str}"`
-          const wrapper = typeof item === 'string' ? quotes : x => x
-          string += maxSpaces + `${wrapper(item)},\n`
-        }
-      }
-      string += minSpaces + ']'
-    } else {
-      string += ']'
+function jsonStringifier(highlightTag, spaces = 2) {
+  return function stringifyJson(json, indent = 0) {
+    if (json === null || json === undefined) {
+      return highlightTag('null keyword')(json)
     }
-    return string
-  } else if (json !== undefined && json !== null) {
-    let string = firstSpaces + '{'
-    if (Object.keys(json).length !== 0) {
-      string += '\n'
-      for (const key in json) {
-        const value = json[key]
 
-        const quotes = str => `"${str}"`
-        string += maxSpaces + `${quotes(key)}: `
+    const isArray = Array.isArray(json)
 
-        if (typeof value === 'object') {
-          string += stringifyJson(value, spaces, indent + spaces, 0) + ',\n'
-        } else {
-          const quotes = str => `"${str}"`
-          const wrapper = typeof value === 'string' ? quotes : x => x
-          string += `${wrapper(value)},\n`
-        }
-      }
-      string += minSpaces + '}'
-    } else {
-      string += '}'
-    }
-    return string
+    const punctuation = highlightTag('punctuation')
+    const operator = highlightTag('operator')
+    const property = highlightTag('property')
+
+    const comma = punctuation(',')
+    const colon = operator(':')
+    const quoteWrapper = str => `"${str}"`
+
+    const brackets = isArray
+      ? Brackets(false, punctuation)
+      : Brackets(true, punctuation)
+
+    const formattedArray = isArray
+      ? json.map(item => {
+          const itemType = typeof item
+          if (itemType === 'object') {
+            return stringifyJson(item, indent + spaces)
+          } else {
+            const wrapper =
+              itemType === 'string'
+                ? combine(highlightTag(itemType), quoteWrapper)
+                : highlightTag(itemType)
+            return wrapper(item)
+          }
+        })
+      : Object.keys(json).map(key => {
+          const value = json[key]
+          const itemType = typeof value
+          const propertyString = property(quoteWrapper(key)) + colon + ' '
+          if (itemType === 'object') {
+            return propertyString + stringifyJson(value, indent + spaces)
+          } else {
+            const wrapper =
+              itemType === 'string'
+                ? combine(highlightTag(itemType), quoteWrapper)
+                : highlightTag(itemType)
+            return propertyString + wrapper(value)
+          }
+        })
+
+    return formatObject(formattedArray, brackets, comma, spaces, indent)
   }
-  return json
+}
+
+function formatObject(stringArray, brackets, comma, spaces, indent) {
+  if (stringArray.length === 0) {
+    return brackets.open + brackets.close
+  }
+
+  const minSpaces = getSpaces(indent)
+  const maxSpaces = getSpaces(spaces + indent)
+
+  let string = brackets.open + '\n'
+  for (const item of stringArray) {
+    string += maxSpaces + item + comma + '\n'
+  }
+  string += minSpaces + brackets.close
+  return string
+}
+
+function Brackets(isCurly, modifier) {
+  const open = isCurly ? '{' : '['
+  const close = isCurly ? '}' : ']'
+  return {
+    open: modifier(open),
+    close: modifier(close)
+  }
+}
+
+function getSpaces(numSpaces) {
+  return Array(numSpaces + 1).join(' ')
+}
+
+function combine(func1, func2) {
+  return function() {
+    return func1(func2(...arguments))
+  }
 }
 
 export default formatJson
