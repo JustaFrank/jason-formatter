@@ -1,5 +1,8 @@
 import { timer } from '../base.js'
 
+// TODO: Clean up and optimize
+// Maybe rewrite lol
+
 function getJsonFormatter(highlighter) {
   const punctuation = highlighter('punctuation')
   const operator = highlighter('operator')

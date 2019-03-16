@@ -34,9 +34,15 @@ ready(() => {
       .map((item, idx) => idx + 1)
       .join('<br />')
 
-    inputCode.style.width = `calc(100% - 40px)`
+    const lineCountDigits = lineCount.toString().length
+
+    inputCode.style.width = `calc(100% - ${
+      lineCountDigits > 2 ? lineCountDigits + 1 : 4
+    }0px)`
     inputCode.setAttribute('contenteditable', false)
-    lineNumbersDiv.style.width = `40px`
+    lineNumbersDiv.style.width = `${
+      lineCountDigits > 2 ? lineCountDigits + 1 : 4
+    }0px`
     window.scrollTo(0, 0)
   })
 
@@ -50,5 +56,23 @@ ready(() => {
     inputCode.style.width = `100%`
     inputCode.setAttribute('contenteditable', true)
     lineNumbersDiv.style.width = `0px`
+  })
+
+  document.addEventListener('keydown', event => {
+    if (event.isComposing || event.keyCode === 229) {
+      return
+    } else if (event.ctrlKey && event.shiftKey) {
+      switch (event.keyCode) {
+        case 70:
+          formatButton.click()
+          break
+        case 82:
+          resetButton.click()
+          break
+        case 67:
+          copyButton.click()
+          break
+      }
+    }
   })
 })
