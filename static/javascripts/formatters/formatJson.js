@@ -23,6 +23,8 @@ function jsonStringifier(highlightTag, spaces = 2) {
 
     const isArray = Array.isArray(json)
 
+    /* FORMATTING STUFF */
+
     const punctuation = highlightTag('punctuation')
     const operator = highlightTag('operator')
     const property = highlightTag('property')
@@ -34,6 +36,8 @@ function jsonStringifier(highlightTag, spaces = 2) {
     const brackets = isArray
       ? Brackets(false, punctuation)
       : Brackets(true, punctuation)
+
+    /* END OF FORMATTING STUFF */
 
     const formattedArray = isArray
       ? json.map(item => {

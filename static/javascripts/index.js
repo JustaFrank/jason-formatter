@@ -4,11 +4,10 @@ import {
   ready,
   mapAttr,
   charCount,
-  timer,
   copyDivToClipboard,
   htmlTag
 } from './base.js'
-import formatJson from './formatters/formatJson.js'
+import getJsonFormatter from './formatters/formatJson2.js'
 
 ready(() => {
   const formatButton = document.getElementById('formatButton')
@@ -24,12 +23,12 @@ ready(() => {
     await mapAttr(
       inputCode,
       'innerHTML',
-      formatJson(htmlTag('span', 'token'))
+      getJsonFormatter(htmlTag('span', 'token'))
     ).catch(err => {
       alert('An error occured. Check the console for details.')
       console.log(err)
     })
-    const lineCount = charCount(inputCode.innerText, '\n')
+    const lineCount = charCount(inputCode.innerText, '\n') + 1
     lineNumbersDiv.innerHTML = new Array(lineCount)
       .fill(undefined)
       .map((item, idx) => idx + 1)
