@@ -96,7 +96,12 @@ function getJsonFormatter(highlighter) {
             return cur === '"'
           },
           cur => {
-            if (currentWrapper && currentWrapper.open.includes('string')) {
+            if (jsonString[i - 1] === '\\') {
+              formattedString += cur
+            } else if (
+              currentWrapper &&
+              currentWrapper.open.includes('string')
+            ) {
               formattedString += cur + string.close
               currentWrapper = null
             } else if (
