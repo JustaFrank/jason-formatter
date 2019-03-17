@@ -14,9 +14,10 @@ var bold = fontWeight('bold');
 var italic = fontStyle('italic');
 var labelCssBase = bold + italic;
 var colors = {
-    info: '#3498DB',
+    info: '#000',
     success: '#58D68D',
-    error: '#E74C3C'
+    error: '#E74C3C',
+    event: '#3498DB'
 };
 function getLogger(production) {
     if (production === void 0) { production = false; }
@@ -25,6 +26,7 @@ function getLogger(production) {
             info: function (_) { },
             success: function (_) { },
             error: function (_) { },
+            event: function (_) { },
             log: function (_) { }
         };
     }
@@ -44,6 +46,12 @@ function getLogger(production) {
         error: function (message) {
             console.log.apply(console, logCss([
                 { message: 'error', css: labelCssBase + color(colors.error) },
+                { message: message, css: '' }
+            ]));
+        },
+        event: function (message) {
+            console.log.apply(console, logCss([
+                { message: 'event', css: labelCssBase + color(colors.event) },
                 { message: message, css: '' }
             ]));
         },

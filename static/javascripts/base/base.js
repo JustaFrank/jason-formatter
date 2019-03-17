@@ -1,11 +1,35 @@
 "use strict";
 exports.__esModule = true;
-function ready(func) {
-    document.addEventListener('DOMContentLoaded', func);
+function ready(cb) {
+    document.addEventListener('DOMContentLoaded', cb);
 }
 exports.ready = ready;
-function curry(fn) {
-    var arity = fn.length;
+function timer(cb) {
+    if (cb === void 0) { cb = function (n) { }; }
+    return function () {
+        var start = Date.now();
+        return function () {
+            var elapsed = Date.now() - start;
+            cb(elapsed);
+            return elapsed;
+        };
+    };
+}
+exports.timer = timer;
+function promisify() {
+    var funcs = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        funcs[_i] = arguments[_i];
+    }
+    return Promise.all(funcs.map(function (func) {
+        return new Promise(function (resolve, reject) {
+            resolve(func());
+        });
+    }));
+}
+exports.promisify = promisify;
+function curry(func) {
+    var arity = func.length;
     return (function resolver() {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -19,7 +43,7 @@ function curry(fn) {
             }
             var partialArgs = mem.slice();
             Array.prototype.push.apply(partialArgs, args);
-            return (partialArgs.length >= arity ? fn : resolver).apply(null, partialArgs);
+            return (partialArgs.length >= arity ? func : resolver).apply(null, partialArgs);
         };
     })();
 }

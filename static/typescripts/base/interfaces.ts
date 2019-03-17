@@ -2,6 +2,7 @@ interface Logger {
   info: (s: any) => void
   success: (s: any) => void
   error: (s: any) => void
+  event: (s: any) => void
   log: (s: any) => void
 }
 

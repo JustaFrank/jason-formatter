@@ -1,38 +1,77 @@
 'use strict';
 exports.__esModule = true;
+var fs = require('fs');
 var base_1 = require("./base/base");
 var logger_1 = require("./base/logger");
+var clipboard_1 = require("./base/clipboard");
 var keyboardShortcut_1 = require("./base/keyboardShortcut");
+var highlight_1 = require("./base/highlight");
+var formatJson_1 = require("./formatters/formatJson");
+var getLoadTime = base_1.timer()();
 base_1.ready(function () {
+    logger.event("document loaded in " + getLoadTime() + " ms");
     pasteInputDiv.spellcheck = false;
-    formatButton.addEventListener('click', function () {
-        pasteInputDiv.innerHTML = formatInput(pasteInputDiv.innerText);
-    });
-    copyButton.addEventListener('click', function () {
-        copyToClipboard(pasteInputDiv.innerText);
-    });
-    resetButton.addEventListener('click', function () {
-        logger.error('TODO: restart button click');
-    });
-    document.addEventListener('keydown', function (event) {
-        keyboardActions.forEach(function (ka) {
-            if (keyboardShortcut_1.checkForKeyboardShortcut(event, ka.shortcut)) {
-                event.preventDefault();
-                logger.info("keyboard shortcut: " + keyboardShortcut_1.ksToString(ka.shortcut));
-                ka.action();
-            }
-        });
-    });
+    formatButton.addEventListener('click', formatButtonClick, false);
+    copyButton.addEventListener('click', copyButtonClick, false);
+    resetButton.addEventListener('click', resetButtonClick, false);
+    document.addEventListener('keydown', keyDown, false);
+    window.onunload = function () {
+        logger.event('exiting page');
+        formatButton.removeEventListener('click', formatButtonClick, false);
+        copyButton.removeEventListener('click', copyButtonClick, false);
+        resetButton.removeEventListener('click', resetButtonClick, false);
+        document.removeEventListener('keydown', keyDown, false);
+    };
 });
-function formatInput(input) {
-    logger.error('TODO: format input');
-    return input;
+// START OF LISTENERS
+function formatButtonClick() {
+    logger.event('format button clicked');
+    var formattedJson = formatJson_1.formatJson(pasteInputDiv.innerText, highlight_1.highlighter('token'), base_1.timer(timeLogger(logger, 'formatting')));
+    pasteInputDiv.innerHTML = formattedJson;
+    lineNumbersDiv.innerHTML = Array(formattedJson.split('\n').length)
+        .fill(0)
+        .map(function (_, idx) { return idx + 1; })
+        .join('<br/>');
 }
-function copyToClipboard(string) {
-    logger.error('TODO: clipboard copy');
+function copyButtonClick() {
+    logger.event('copy button clicked');
+    clipboard_1.copyToClipboard(navigator, pasteInputDiv.innerText)
+        .then(function () {
+        logger.success('copied div text to clipboard');
+    })["catch"](handleError);
 }
-// ALL VARIABLES UNDER HERE
-var logger = logger_1.getLogger();
+function resetButtonClick() {
+    logger.event('reset button clicked');
+    base_1.promisify(function () { return (pasteInputDiv.innerHTML = ''); }, function () { return (lineNumbersDiv.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;'); })
+        .then(function () {
+        logger.success('all elements reset');
+    })["catch"](handleError);
+}
+function keyDown(event) {
+    keyboardActions.forEach(function (ka) {
+        if (keyboardShortcut_1.checkForKeyboardShortcut(event, ka.shortcut)) {
+            event.preventDefault();
+            logger.event("keyboard shortcut: " + keyboardShortcut_1.ksToString(ka.shortcut));
+            ka.action();
+        }
+    });
+}
+// END OF LISTENERS
+// START OF HELPER FUNCTIONS
+function timeLogger(logger, label) {
+    return function (time) {
+        logger.info(label + ": " + time);
+    };
+}
+function handleError(err) {
+    logger.error(err.message);
+}
+// END OF HELPER FUNCTIONS
+// ALL CONSTANTS
+var version = 'v0.0.2';
+var production = location.hostname !== 'localhost';
+console.log((production ? 'Production' : 'Development') + " build: " + version);
+var logger = logger_1.getLogger(production);
 var formatButton = document.getElementById('formatButton');
 var pasteInputDiv = document.getElementById('pasteInputDiv');
 var lineNumbersDiv = document.getElementById('lineNumbersDiv');
@@ -61,6 +100,16 @@ var keyboardActions = [
             keyCode: 82,
             ctrlKey: true,
             shiftKey: true
+        }
+    },
+    {
+        action: function () {
+            return clipboard_1.pasteIntoHtml(pasteInputDiv)
+                .then(function () { return logger.success('pasted clipboard text into div'); })["catch"](handleError);
+        },
+        shortcut: {
+            keyCode: 86,
+            ctrlKey: true
         }
     }
 ];

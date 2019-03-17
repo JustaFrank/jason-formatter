@@ -11,10 +11,6 @@ body {
   font-size: 1em;
 }
 
-code {
-  background: none !important;
-}
-
 .navbar {
   background-color: #222228 !important;
 }
@@ -28,14 +24,16 @@ code {
   font-family: 'Fira Code';
   order: 2;
   outline: none;
-  width: 100%;
+  width: calc(100% - 60px);
   white-space: pre !important;
 }
 
 .line-numbers {
   order: 1;
-  width: 0px;
+  width: 60px;
   margin-right: 0px;
+  user-select: none;
+  white-space: pre !important;
 }
 
 .paste-container {

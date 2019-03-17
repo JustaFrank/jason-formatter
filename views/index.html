@@ -16,7 +16,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   </head>
   <body>
-    <nav class="navbar fixed-top navbar-light bg-light mb-3">
+    <nav class="navbar fixed-top navbar-light bg-light">
       <span class="navbar-brand mb-0 h1">JaSON Formatter</span>
       <small><em>press Ctrl + Shift + (C or R or F)</em></small>
       <div>
@@ -26,8 +26,8 @@
       </div>
     </nav>
         
-    <div class="paste-container full-height">
-      <div class="line-numbers" id="lineNumbersDiv"></div>
+    <div class="paste-container full-height pt-2">
+      <div class="line-numbers" id="lineNumbersDiv">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;</div>
       <div contenteditable="true" data-gramm_editor="false" class="paste-input language-json full-height" id="pasteInputDiv"></div>
     </div>
   </body>

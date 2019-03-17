@@ -20,9 +20,10 @@ const italic: string = fontStyle('italic')
 const labelCssBase: string = bold + italic
 
 const colors = {
-  info: '#3498DB',
+  info: '#000',
   success: '#58D68D',
-  error: '#E74C3C'
+  error: '#E74C3C',
+  event: '#3498DB'
 }
 
 function getLogger(production: boolean = false): Logger {
@@ -31,6 +32,7 @@ function getLogger(production: boolean = false): Logger {
       info: (_: string) => {},
       success: (_: string) => {},
       error: (_: string) => {},
+      event: (_: string) => {},
       log: (_: string) => {}
     }
   }
@@ -55,6 +57,14 @@ function getLogger(production: boolean = false): Logger {
       console.log(
         ...logCss([
           { message: 'error', css: labelCssBase + color(colors.error) },
+          { message: message, css: '' }
+        ])
+      )
+    },
+    event: (message: any) => {
+      console.log(
+        ...logCss([
+          { message: 'event', css: labelCssBase + color(colors.event) },
           { message: message, css: '' }
         ])
       )
