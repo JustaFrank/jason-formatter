@@ -10,6 +10,6 @@
   },
   "scripts": {
     "start": "node server.js",
-    "postinstall": "node ."
+    "postinstall": "tsc && browserify ./static/javascripts/index.js -o ./static/javascripts/bundle.js"
   }
 }
