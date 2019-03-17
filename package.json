@@ -6,11 +6,13 @@
   "dependencies": {
     "@types/node": "^11.11.3",
     "deep-equal": "^1.0.1",
-    "express": "^4.16.4",
-    "typescript": "^3.3.3333"
+    "express": "^4.16.4"
   },
   "scripts": {
     "start": "node server.js",
     "postinstall": "tsc && browserify ./static/javascripts/index.js -o ./static/javascripts/bundle.js"
+  },
+  "devDependencies": {
+    "typescript": "^3.3.3333"
   }
 }
