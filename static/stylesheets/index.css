@@ -25,6 +25,7 @@ code {
 }
 
 .paste-input {
+  font-family: 'Fira Code';
   order: 2;
   outline: none;
   width: 100%;

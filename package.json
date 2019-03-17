@@ -4,6 +4,8 @@
   "main": "server.js",
   "license": "MIT",
   "dependencies": {
+    "@types/node": "^11.11.3",
+    "deep-equal": "^1.0.1",
     "express": "^4.16.4"
   }
 }
