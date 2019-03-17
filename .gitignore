@@ -3,3 +3,4 @@ yarn.lock
 .prettierignore
 tsconfig.json
 compiled
+compile.bash
