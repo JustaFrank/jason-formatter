@@ -493,12 +493,22 @@ base_1.ready(function () {
 // START OF LISTENERS
 function formatButtonClick() {
     logger.event('format button clicked');
-    var formattedJson = formatJson_1.formatJson(pasteInputDiv.innerText, highlight_1.highlighter('token'), base_1.timer(timeLogger(logger, 'formatting')));
-    pasteInputDiv.innerHTML = formattedJson;
-    lineNumbersDiv.innerHTML = Array(formattedJson.split('\n').length)
-        .fill(0)
-        .map(function (_, idx) { return idx + 1; })
-        .join('<br/>');
+    base_1.promisify(function () {
+        return formatJson_1.formatJson(pasteInputDiv.innerText, highlight_1.highlighter('token'), base_1.timer(timeLogger(logger, 'formatting time')));
+    })
+        .then(function (_a) {
+        var formattedJson = _a[0];
+        pasteInputDiv.innerHTML = formattedJson;
+        logger.info('formatted json type: ' + typeof formattedJson);
+        lineNumbersDiv.innerHTML = Array(formattedJson.split('\n').length)
+            .fill(0)
+            .map(function (_, idx) { return idx + 1; })
+            .join('<br/>');
+        pasteInputDiv.setAttribute('contenteditable', 'false');
+    })
+        .then(function () {
+        logger.success('json formatted and rendered');
+    })["catch"](handleError);
 }
 function copyButtonClick() {
     logger.event('copy button clicked');
@@ -509,7 +519,9 @@ function copyButtonClick() {
 }
 function resetButtonClick() {
     logger.event('reset button clicked');
-    base_1.promisify(function () { return (pasteInputDiv.innerHTML = ''); }, function () { return (lineNumbersDiv.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;'); })
+    base_1.promisify(function () { return (pasteInputDiv.innerHTML = ''); }, function () { return (lineNumbersDiv.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;'); }, function () {
+        pasteInputDiv.setAttribute('contenteditable', 'true');
+    })
         .then(function () {
         logger.success('all elements reset');
     })["catch"](handleError);

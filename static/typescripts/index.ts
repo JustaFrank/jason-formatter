@@ -35,16 +35,26 @@ ready(() => {
 
 function formatButtonClick(): void {
   logger.event('format button clicked')
-  const formattedJson = formatJson(
-    pasteInputDiv.innerText,
-    highlighter('token'),
-    timer(timeLogger(logger, 'formatting'))
-  )
-  pasteInputDiv.innerHTML = formattedJson
-  lineNumbersDiv.innerHTML = Array(formattedJson.split('\n').length)
-    .fill(0)
-    .map((_, idx) => idx + 1)
-    .join('<br/>')
+  promisify(() => {
+    return formatJson(
+      pasteInputDiv.innerText,
+      highlighter('token'),
+      timer(timeLogger(logger, 'formatting time'))
+    )
+  })
+    .then(([formattedJson]: string[]) => {
+      pasteInputDiv.innerHTML = formattedJson
+      logger.info('formatted json type: ' + typeof formattedJson)
+      lineNumbersDiv.innerHTML = Array(formattedJson.split('\n').length)
+        .fill(0)
+        .map((_, idx) => idx + 1)
+        .join('<br/>')
+      pasteInputDiv.setAttribute('contenteditable', 'false')
+    })
+    .then(() => {
+      logger.success('json formatted and rendered')
+    })
+    .catch(handleError)
 }
 
 function copyButtonClick(): void {
@@ -60,7 +70,10 @@ function resetButtonClick(): void {
   logger.event('reset button clicked')
   promisify(
     () => (pasteInputDiv.innerHTML = ''),
-    () => (lineNumbersDiv.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;')
+    () => (lineNumbersDiv.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;'),
+    () => {
+      pasteInputDiv.setAttribute('contenteditable', 'true')
+    }
   )
     .then(() => {
       logger.success('all elements reset')

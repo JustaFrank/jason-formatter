@@ -3,12 +3,11 @@ html {
 }
 
 body {
-  font-size: 14px;
+  font-size: 0.75em;
   padding-top: 62.75px;
   height: 100%;
   background: #2d2d32;
   color: #ccc !important;
-  font-size: 1em;
 }
 
 .navbar {
