@@ -4,4 +4,4 @@ yarn.lock
 tsconfig.json
 compiled
 compile.bash
-javascripts
+static/javascripts
