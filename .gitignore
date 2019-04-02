@@ -3,4 +3,4 @@ yarn.lock
 .prettierignore
 compiled
 compile.bash
-./static/javascripts
+static/javascripts/
